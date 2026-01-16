@@ -4,7 +4,7 @@
 def verifier_3coloration(graph, coloration):
     """
     Verifie si une coloration est une 3-coloration valide.
-    Complexite totale: O(V + E)
+    Complexite totale: O(V^2) car matrice d'adjacence
     """
     n = graph.nb_vertices()  # O(1)
 

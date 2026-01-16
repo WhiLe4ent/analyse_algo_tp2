@@ -5,7 +5,7 @@ from collections import deque
 def est_biparti(graph):
     """
     Teste si un graphe est biparti (2-coloriable) via BFS.
-    Complexite totale: O(V + E)
+    Complexite totale: O(V^2) car matrice d'adjacence
     """
     n = graph.nb_vertices()  # O(1)
     if n == 0:  # O(1)

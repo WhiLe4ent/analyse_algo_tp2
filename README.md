@@ -31,14 +31,14 @@ python main.py verifier util/graph.dimacs 0,1,2
 
 ### Complexite de l'algorithme ?
 
-**O(V + E)** avec V = sommets, E = aretes
+**O(V^2)** avec V = sommets
 
 Pourquoi :
 - On parcourt chaque sommet une fois avec BFS -> O(V)
-- On regarde chaque arete une fois -> O(E)
-- Total : O(V + E)
+- Pour chaque sommet, on parcourt tous les V sommets pour trouver les voisins (matrice d'adjacence) -> O(V)
+- Total : O(V^2)
 
-Le temps reel correspond bien a cette complexite. C'est lineaire, on ne peut pas faire mieux car il faut lire tout le graphe.
+Note : avec une liste d'adjacence, ce serait O(V + E). Mais notre implementation utilise une matrice d'adjacence, donc la recherche des voisins est en O(V) par sommet.
 
 ---
 
@@ -46,11 +46,11 @@ Le temps reel correspond bien a cette complexite. C'est lineaire, on ne peut pas
 
 ### Question 1 : Verification
 
-**O(V + E)** (polynomiale)
+**O(V^2)** (polynomiale)
 
 Pourquoi :
 - On verifie chaque sommet a une couleur valide -> O(V)
-- On verifie chaque arete ne relie pas 2 sommets de meme couleur -> O(E)
+- On parcourt la matrice d'adjacence pour verifier les aretes -> O(V^2)
 
 C'est polynomial donc 3-Col est dans NP (on peut verifier une solution rapidement).
 
