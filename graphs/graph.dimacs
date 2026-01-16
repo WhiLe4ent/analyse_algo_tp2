@@ -1,0 +1,8 @@
+c
+c Random graph with 3 vertices.
+c Each edge appears with probability 5.0.
+c
+p edge 3 3
+e 0 1
+e 0 2
+e 1 2
