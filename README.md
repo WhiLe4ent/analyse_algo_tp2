@@ -1,7 +1,7 @@
 # TP2 - Analyse d'algorithmes
 ## 3-Coloration (probleme NP-complet)
 
-**Auteur:** Elias CUZEAU
+**Auteurs:** Achille GRAVOUIL Elias CUZEAU
 **Cours:** INFO003 - M2
 
 ---
