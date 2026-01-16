@@ -1,43 +1,43 @@
-import networkx as nx
-import matplotlib.pyplot as plt
+# coding=utf-8
 
-def read_dimacs_graph(path):
+import sys
+import os
+
+# Ajouter le repertoire parent au path pour importer graph
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import matplotlib.pyplot as plt
+import networkx as nx
+from graph import Graph
+
+
+def show_graph(g, title="Graphe"):
+    """
+    Affiche un graphe avec matplotlib et networkx.
+    """
     G = nx.Graph()
 
-    with open(path, "r") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("c"):
-                continue
+    n = g.nb_vertices()
+    G.add_nodes_from(range(n))
 
-            parts = line.split()
+    for u in range(n):
+        for v in range(u + 1, n):
+            if g.is_edge(u, v):
+                G.add_edge(u, v)
 
-            if parts[0] == "p":
-                # p edge nb_vertices nb_edges
-                n = int(parts[2])
-                G.add_nodes_from(range(n))
-
-            elif parts[0] == "e":
-                _, u, v = parts
-                G.add_edge(int(u), int(v))
-
-    return G
+    plt.figure(figsize=(8, 6))
+    pos = nx.spring_layout(G)
+    nx.draw(G, pos, with_labels=True, node_color='lightblue',
+            node_size=500, font_size=12, font_weight='bold')
+    plt.title(title)
+    plt.show()
 
 
-# -------- UTILISATION --------
-G = read_dimacs_graph("graph.dimacs")
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("usage: python showGraph.py <graph_file>")
+        exit(1)
 
-plt.figure(figsize=(4, 4))
-pos = nx.spring_layout(G, seed=42)  # layout automatique (pas Graphviz)
-nx.draw(
-    G,
-    pos,
-    with_labels=True,
-    node_size=800,
-    node_color="lightblue",
-    edge_color="gray",
-    font_size=12
-)
-
-plt.savefig("graph.png", dpi=200)
-plt.show()
+    filename = sys.argv[1]
+    g = Graph.initGraph(filename)
+    show_graph(g, title=filename)

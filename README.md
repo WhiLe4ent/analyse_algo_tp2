@@ -20,9 +20,19 @@ util/            -> Generateurs de graphes
 ## Utilisation
 
 ```bash
-python main.py biparti util/graph.dimacs
-python main.py 3col util/graph.dimacs
-python main.py verifier util/graph.dimacs 0,1,2
+# Section 1 : Test biparti (2-coloration)
+python main.py biparti graphs/graph.dimacs
+
+# Section 2 : 3-coloration
+python main.py 3col graphs/graph.dimacs
+python main.py verifier graphs/graph.dimacs 0,1,2
+
+# Section 3.1-3.2 : Clique et EnsInd via SAT-solver
+python util/CliqueFromPycosat.py graphs/graph.dimacs 3 [-v]
+python util/EnsIndFromPycosat.py graphs/graph.dimacs 2 [-v]
+
+# Section 3.3 : 3CouvertureParCliques
+python main.py 3couv graphs/graph.dimacs
 ```
 
 ---
@@ -66,3 +76,29 @@ Pourquoi :
 C'est exponentiel, ce qui est normal car 3-Col est NP-complet. En pratique, le backtracking coupe souvent des branches tot quand il detecte un conflit.
 
 **Memoire : O(V)** car la recursion va au max a profondeur V.
+
+---
+
+## Section 3 : SAT-solver et reductions
+
+### Section 3.1-3.2 : EnsInd via SAT-solver
+
+Le probleme Ensemble Independant (EnsInd) est l'oppose de Clique :
+- **Clique** : trouver k sommets tous connectes entre eux
+- **EnsInd** : trouver k sommets sans aucune arete entre eux
+
+Implementation dans `util/EnsIndFromPycosat.py` :
+- Adaptation minimale de `CliqueFromPycosat.py`
+- Seule difference : on ajoute la contrainte `[-u, -v]` quand il Y A une arete (au lieu de quand il n'y en a pas)
+
+### Section 3.3 : 3CouvertureParCliques via reduction a 3Col
+
+**Probleme** : Peut-on couvrir tous les sommets d'un graphe G avec 3 cliques ?
+
+**Observation cle** : Dans une 3-coloration, les sommets de meme couleur forment un ensemble independant. Or, un ensemble independant dans G est une clique dans le graphe complementaire G'.
+
+**Reduction** : `3CouvertureParCliques(G) <=> 3Col(G')`
+
+ou G' est le graphe complementaire de G (arete dans G' ssi pas d'arete dans G).
+
+**Consequence** : Si 3Col est NP-complet, alors 3CouvertureParCliques est aussi NP-complet (reduction polynomiale).
