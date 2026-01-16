@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from graph import Graph
-from src.coloration import resoudre_3col_backtracking
+from src.coloration import backtrack_3col
 
 
 def graphe_complementaire(g):
@@ -35,16 +35,16 @@ def resoudre_3couverture_cliques(g):
     """
     # Construire le graphe complementaire
     g_comp = graphe_complementaire(g)
+    n = g_comp.nb_vertices()
 
     # Resoudre 3Col sur le complementaire
-    coloration = resoudre_3col_backtracking(g_comp)
-
-    if coloration is None:
+    colors = [0] * n
+    if not backtrack_3col(g_comp, colors, 0):
         return None
 
     # Extraire les 3 cliques (sommets de meme couleur)
     cliques = [[], [], []]
-    for sommet, couleur in coloration.items():
-        cliques[couleur].append(sommet)
+    for sommet in range(n):
+        cliques[colors[sommet] - 1].append(sommet)
 
     return cliques

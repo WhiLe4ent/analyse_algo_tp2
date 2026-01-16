@@ -4,14 +4,14 @@ import sys
 import time
 from graph import Graph
 from src.biparti import est_biparti
-from src.coloration import verifier_3coloration, resoudre_3col_backtracking
+from src.coloration import is_valid_3coloring, backtrack_3col, backtrack_3col_opti, build_adjacency_and_order
 from src.couverture_cliques import resoudre_3couverture_cliques
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("usage : python3 main.py <function> <filename> [options]")
-        print("  functions: biparti, verifier, 3col, 3couv")
+        print("  functions: biparti, verifier, 3col, 3col-opti, 3couv")
         print("  options: -time (affiche le temps de calcul)")
         exit(1)
 
@@ -33,20 +33,30 @@ if __name__ == '__main__':
         case "verifier":
             if len(sys.argv) < 4:
                 print("usage: python3 main.py verifier <filename> <coloration>")
-                print("  coloration format: 0,1,2,0,1,...")
+                print("  coloration format: 1,2,3,1,2,...")
                 exit(1)
-            couleurs = list(map(int, sys.argv[3].split(',')))
-            coloration = {i: c for i, c in enumerate(couleurs)}
-            if verifier_3coloration(g, coloration):
+            colors = list(map(int, sys.argv[3].split(',')))
+            if is_valid_3coloring(g, colors):
                 print("Coloration VALIDE")
             else:
                 print("Coloration INVALIDE")
 
         case "3col":
-            solution = resoudre_3col_backtracking(g)
-            if solution:
+            n = g.nb_vertices()
+            colors = [0] * n
+            if backtrack_3col(g, colors, 0):
                 print("Le graphe EST 3-coloriable")
-                print(f"Coloration: {solution}")
+                print(f"Coloration: {colors}")
+            else:
+                print("Le graphe N'EST PAS 3-coloriable")
+
+        case "3col-opti":
+            n = g.nb_vertices()
+            colors = [0] * n
+            adj, nodes_order = build_adjacency_and_order(g)
+            if backtrack_3col_opti(0, colors, adj, nodes_order):
+                print("Le graphe EST 3-coloriable")
+                print(f"Coloration: {colors}")
             else:
                 print("Le graphe N'EST PAS 3-coloriable")
 
@@ -61,7 +71,7 @@ if __name__ == '__main__':
 
         case _:
             print("Fonction non reconnue")
-            print("  functions disponibles: biparti, verifier, 3col, 3couv")
+            print("  functions disponibles: biparti, verifier, 3col, 3col-opti, 3couv")
 
     if show_time:
         elapsed = time.time() - start_time

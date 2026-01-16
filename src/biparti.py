@@ -2,33 +2,28 @@
 from collections import deque
 
 
-def est_biparti(graph):
-    """
-    Teste si un graphe est biparti (2-coloriable) via BFS.
-    Complexite totale: O(V^2) car matrice d'adjacence
-    """
-    n = graph.nb_vertices()  # O(1)
-    if n == 0:  # O(1)
-        return True  # O(1)
+def est_biparti(graph):                             # -> O(n + n^2) = O(n^2)
+    n = graph.nb_vertices()                             # O(1)
+    colors = [0] * n                                # O(n)
 
-    couleurs = [-1] * n  # O(V)
+    for start_node in range(n):                     # O(n)
+        if colors[start_node] != 0:                 # O(1) bfs une seule fois / node
+            continue
 
-    for start in range(n):  # O(V) iterations
-        if couleurs[start] != -1:  # O(1)
-            continue  # O(1)
+        queue = deque([start_node])                 # O(1)
+        colors[start_node] = 1                      # O(1)
 
-        file = deque([start])  # O(1)
-        couleurs[start] = 0  # O(1)
+        while queue:                                # O(n)
+            u = queue.popleft()                     # O(1)
+            current_color = colors[u]               # O(1)
+            next_color = -current_color             # O(1)
 
-        while file:  # O(V) iterations au total
-            u = file.popleft()  # O(1)
-            for v in range(n):  # O(V)
-                if not graph.is_edge(u, v):  # O(1)
-                    continue  # O(1)
-                if couleurs[v] == -1:  # O(1)
-                    couleurs[v] = 1 - couleurs[u]  # O(1)
-                    file.append(v)  # O(1)
-                elif couleurs[v] == couleurs[u]:  # O(1)
-                    return False  # O(1)
+            for v in range(n):                      # O(n)
+                if graph.edges[u][v] == 1:              # O(1)
+                    if colors[v] == 0:              # O(1)
+                        colors[v] = next_color      # O(1)
+                        queue.append(v)             # O(1)
+                    elif colors[v]==current_color:  # O(1)
+                        return False                # O(1)
 
-    return True  # O(1)
+    return True                                     # O(1)
