@@ -21,19 +21,25 @@ util/            -> Generateurs de graphes
 
 ```bash
 # Section 1 : Test biparti (2-coloration)
-python main.py biparti graphs/graph.dimacs
+python main.py biparti graphs/graph.dimacs [-time]
 
 # Section 2 : 3-coloration
-python main.py 3col graphs/graph.dimacs
-python main.py verifier graphs/graph.dimacs 0,1,2
+python main.py 3col graphs/graph.dimacs [-time]
+python main.py 3col-opti graphs/graph.dimacs [-time]  # version optimisee
+python main.py verifier graphs/graph.dimacs 1,2,3 [-time]
 
 # Section 3.1-3.2 : Clique et EnsInd via SAT-solver
 python util/CliqueFromPycosat.py graphs/graph.dimacs 3 [-v]
-python util/EnsIndFromPycosat.py graphs/graph.dimacs 2 [-v]
+python util/EnsInd.py graphs/graph.dimacs 2 [-v]
 
 # Section 3.3 : 3CouvertureParCliques
-python main.py 3couv graphs/graph.dimacs
+python main.py 3couv graphs/graph.dimacs [-time]
+
+# Visualiser un graphe
+python util/showGraph.py graphs/graph.dimacs
 ```
+
+**Option -time** : affiche le temps de calcul
 
 ---
 
@@ -66,14 +72,20 @@ C'est polynomial donc 3-Col est dans NP (on peut verifier une solution rapidemen
 
 ### Question 3 : Complexite du backtracking ?
 
-**O(3^V)** dans le pire cas
+**O(3^V * V)** dans le pire cas
 
 Pourquoi :
 - Pour chaque sommet, on teste 3 couleurs
 - On a V sommets
 - Donc au max 3 x 3 x ... x 3 = 3^V possibilites
+- Verification de coherence : O(V) par noeud
 
 C'est exponentiel, ce qui est normal car 3-Col est NP-complet. En pratique, le backtracking coupe souvent des branches tot quand il detecte un conflit.
+
+**Version optimisee (3col-opti)** :
+- Utilise une liste d'adjacence au lieu de la matrice
+- Ordonne les sommets par degre decroissant (heuristique)
+- Verification de coherence en O(degre) au lieu de O(V)
 
 **Memoire : O(V)** car la recursion va au max a profondeur V.
 
@@ -87,7 +99,7 @@ Le probleme Ensemble Independant (EnsInd) est l'oppose de Clique :
 - **Clique** : trouver k sommets tous connectes entre eux
 - **EnsInd** : trouver k sommets sans aucune arete entre eux
 
-Implementation dans `util/EnsIndFromPycosat.py` :
+Implementation dans `util/EnsInd.py` :
 - Adaptation minimale de `CliqueFromPycosat.py`
 - Seule difference : on ajoute la contrainte `[-u, -v]` quand il Y A une arete (au lieu de quand il n'y en a pas)
 
@@ -102,3 +114,18 @@ Implementation dans `util/EnsIndFromPycosat.py` :
 ou G' est le graphe complementaire de G (arete dans G' ssi pas d'arete dans G).
 
 **Consequence** : Si 3Col est NP-complet, alors 3CouvertureParCliques est aussi NP-complet (reduction polynomiale).
+
+### Section 3.4 : 3-Coloration via SAT-solver
+
+Implementation dans `src/clique3couvSatSolver.py` (fonction `solve3ColorSat`).
+
+**Encodage SAT** : Pour chaque sommet v et couleur c in {0,1,2}, on cree une variable `X_{v,c}` (vraie si v a la couleur c).
+
+**Contraintes** :
+1. Chaque sommet a au moins une couleur : `(X_{v,0} OR X_{v,1} OR X_{v,2})`
+2. Chaque sommet a au plus une couleur : `(-X_{v,c1} OR -X_{v,c2})` pour c1 != c2
+3. Deux voisins n'ont pas la meme couleur : `(-X_{u,c} OR -X_{v,c})` pour chaque arete (u,v)
+
+**Comparaison avec backtracking** :
+- SAT-solver : plus efficace sur grandes instances grace aux heuristiques (DPLL, propagation, apprentissage de clauses)
+- Backtracking : plus simple, pas de dependance externe
